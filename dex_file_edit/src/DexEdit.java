@@ -2,12 +2,14 @@ import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.zip.Adler32;
 
 
@@ -153,8 +155,16 @@ public class DexEdit {
 		System.out.print("\nModify method's bytecode:\n");
 		System.out.print("---------------------------\n");
 		
+		// generate key
+		SecureRandom random = new SecureRandom();
+		String key = new BigInteger(128, random).toString(32);
+		
 		byte[] newDexFileBytes = dexFileBytes;
-		newDexFileBytes[methodOffset + 2] = 0x09;
+		for(int i = methodOffset; i < methodOffset + 6; i++)
+		{
+			newDexFileBytes[i] = (byte) (newDexFileBytes[i] ^ 0x2A);
+		}
+		//newDexFileBytes[methodOffset + 2] = 0x09;
 		System.out.print("Method has been modified\n");
 		
 		// compute new SHA1
