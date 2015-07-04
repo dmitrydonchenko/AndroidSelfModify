@@ -43,12 +43,27 @@ public class DexEdit {
 	
 	/**
 	 * @param args
+	 * 1 - path to .dex file
+	 * 2 - offset to the beginning of the method to modify
+	 * 3 - offset to the end of the method
 	 */
 	public static void main(String[] args) throws IOException {
+		
+		String filename;
+		int beginOffset, endOffset;
+		if(args.length == 3) {
+			filename = args[0];
+			beginOffset = Integer.parseInt(args[1]);			
+			endOffset = Integer.parseInt(args[2]);
+		}
+		else
+		{
+			System.out.print("Wrong command line arguments\nUsage:\n");
+			System.out.print("dex_file_edit.java <dex_filename> <begin_offset> <end_offset>\n");
+			return;
+		}
+		
 		// read .dex file to bytes array		
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("Input .dex filename\n");
-		String filename = br.readLine();
 		Path path = Paths.get(filename);
 		byte[] dexFileBytes = Files.readAllBytes(path);
 		
@@ -65,7 +80,7 @@ public class DexEdit {
 		System.out.print(".dex file Magic Ok\n");
 		
 		// method's bytes:
-		byte[] methodBytes = { 0x13, 0x00, 0x2A, 0x00, 0x0F, 0x00 };
+		/*byte[] methodBytes = { 0x13, 0x00, 0x2A, 0x00, 0x0F, 0x00 };
 		
 		System.out.print("\nSearching for method in .dex file:\n");
 		System.out.print("------------------------------------\n");
@@ -87,7 +102,7 @@ public class DexEdit {
 		if(methodOffset == -1) {
 			System.out.print("Method wasn't found");
 			return;
-		}
+		}*/
 		
 		// Displaying .dex file header:
 		System.out.print("\nDisplaying .dex file header:\n");
@@ -160,10 +175,13 @@ public class DexEdit {
 		String key = new BigInteger(128, random).toString(32);
 		
 		byte[] newDexFileBytes = dexFileBytes;
-		for(int i = methodOffset; i < methodOffset + 6; i++)
+		for(int i = beginOffset; i < endOffset; i++) {
+			newDexFileBytes[i] = (byte) (~newDexFileBytes[i]);
+		}
+		/*for(int i = methodOffset; i < methodOffset + 6; i++)
 		{
 			newDexFileBytes[i] = (byte) (newDexFileBytes[i] ^ 0x2A);
-		}
+		}*/
 		//newDexFileBytes[methodOffset + 2] = 0x09;
 		System.out.print("Method has been modified\n");
 		
